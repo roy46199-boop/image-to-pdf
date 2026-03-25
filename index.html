@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image to PDF Converter | Free Online Tool</title>
+  <title>Image to PDF Converter Pro | Free Online Tool</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO -->
-  <meta name="description" content="Convert images to PDF online for free. Fast and easy image to PDF converter.">
-  <meta name="keywords" content="image to pdf, jpg to pdf, convert image to pdf">
+  <meta name="description" content="Convert images to PDF online for free. Fast, secure, and easy PDF converter.">
 
-  <!-- PDF Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
@@ -26,19 +23,30 @@
       background: rgba(255,255,255,0.05);
       padding: 20px;
       border-radius: 15px;
-      max-width: 400px;
+      max-width: 450px;
       margin: auto;
     }
 
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
+    #drop {
+      border: 2px dashed #38bdf8;
+      padding: 20px;
+      margin-bottom: 10px;
       border-radius: 10px;
-      border: none;
+      cursor: pointer;
+    }
+
+    img {
+      width: 80px;
+      margin: 5px;
+      border-radius: 5px;
     }
 
     button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
       background: #22c55e;
       font-weight: bold;
       cursor: pointer;
@@ -48,33 +56,68 @@
 
 <body>
 
-<h1>📄 Image to PDF Converter</h1>
-<p>Convert images into PDF instantly (Free)</p>
+<h1>📄 Image to PDF Converter Pro</h1>
+<p>Drag & drop images and convert instantly</p>
 
 <div class="box">
 
-  <input type="file" id="upload" multiple>
+  <div id="drop">📂 Drag & Drop Images Here</div>
+  <input type="file" id="upload" multiple style="display:none">
 
-  <button onclick="convertToPDF()">Convert to PDF</button>
+  <div id="preview"></div>
+
+  <button onclick="convertToPDF()">🔥 Convert to PDF</button>
 
 </div>
 
 <script>
+let files = [];
+
+const drop = document.getElementById("drop");
+const input = document.getElementById("upload");
+const preview = document.getElementById("preview");
+
+drop.onclick = () => input.click();
+
+input.onchange = (e) => handleFiles(e.target.files);
+
+drop.ondragover = (e) => {
+  e.preventDefault();
+  drop.style.background = "#1e293b";
+};
+
+drop.ondrop = (e) => {
+  e.preventDefault();
+  handleFiles(e.dataTransfer.files);
+};
+
+function handleFiles(selectedFiles) {
+  files = [...selectedFiles];
+  preview.innerHTML = "";
+
+  files.forEach(file => {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      let img = document.createElement("img");
+      img.src = e.target.result;
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 async function convertToPDF() {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  const files = document.getElementById("upload").files;
-
   if (files.length === 0) {
-    alert("Please upload images");
+    alert("Upload images first");
     return;
   }
 
-  for (let i = 0; i < files.length; i++) {
-    let file = files[i];
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
 
+  for (let i = 0; i < files.length; i++) {
     let reader = new FileReader();
+
     await new Promise(resolve => {
       reader.onload = function(e) {
         let img = new Image();
@@ -83,11 +126,11 @@ async function convertToPDF() {
         img.onload = function() {
           if (i > 0) pdf.addPage();
 
-          pdf.addImage(img, 'JPEG', 10, 10, 180, 160);
+          pdf.addImage(img, 'JPEG', 10, 10, 180, 260);
           resolve();
         };
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(files[i]);
     });
   }
 
