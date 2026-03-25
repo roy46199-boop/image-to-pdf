@@ -58,7 +58,7 @@
 <body>
 
 <h1>📄 Image to PDF Converter</h1>
-<p>No quality loss • No white space</p>
+<p>No quality loss • No white space • Pro tool</p>
 
 <div class="box">
 
@@ -67,10 +67,10 @@
 
   <div id="preview"></div>
 
-  <!-- MODE SELECT -->
   <select id="mode">
-    <option value="original">📷 Original Size (No white space)</option>
-    <option value="a4">📄 A4 Size</option>
+    <option value="original">📷 Original (No space)</option>
+    <option value="fit">📄 A4 Fit</option>
+    <option value="fill">🔥 A4 Full Fill (No space)</option>
   </select>
 
   <button onclick="convertToPDF()">🔥 Convert to PDF</button>
@@ -133,55 +133,62 @@ async function convertToPDF() {
 
         img.onload = function() {
 
-          let pdfWidth, pdfHeight, x = 0, y = 0;
-
           if (mode === "original") {
-            // NO WHITE SPACE
-            pdfWidth = img.width;
-            pdfHeight = img.height;
+            let w = img.width;
+            let h = img.height;
 
             if (i === 0) {
-              pdf = new jsPDF({
-                unit: "px",
-                format: [pdfWidth, pdfHeight]
-              });
+              pdf = new jsPDF({ unit: "px", format: [w, h] });
             } else {
-              pdf.addPage([pdfWidth, pdfHeight]);
+              pdf.addPage([w, h]);
             }
 
-          } else {
-            // A4 MODE
-            pdfWidth = 595;
-            pdfHeight = 842;
+            pdf.addImage(img, 'JPEG', 0, 0, w, h);
+          }
+
+          else {
+            const pageW = 595;
+            const pageH = 842;
 
             if (i === 0) {
-              pdf = new jsPDF({
-                unit: "px",
-                format: "a4"
-              });
+              pdf = new jsPDF({ unit: "px", format: "a4" });
             } else {
               pdf.addPage();
             }
 
-            let ratio = Math.min(pdfWidth / img.width, pdfHeight / img.height);
-            let newWidth = img.width * ratio;
-            let newHeight = img.height * ratio;
+            let imgRatio = img.width / img.height;
+            let pageRatio = pageW / pageH;
 
-            x = (pdfWidth - newWidth) / 2;
-            y = (pdfHeight - newHeight) / 2;
+            let w, h, x = 0, y = 0;
 
-            pdfWidth = newWidth;
-            pdfHeight = newHeight;
+            if (mode === "fit") {
+              if (imgRatio > pageRatio) {
+                w = pageW;
+                h = pageW / imgRatio;
+              } else {
+                h = pageH;
+                w = pageH * imgRatio;
+              }
+
+              x = (pageW - w) / 2;
+              y = (pageH - h) / 2;
+            }
+
+            if (mode === "fill") {
+              if (imgRatio > pageRatio) {
+                h = pageH;
+                w = pageH * imgRatio;
+              } else {
+                w = pageW;
+                h = pageW / imgRatio;
+              }
+
+              x = (pageW - w) / 2;
+              y = (pageH - h) / 2;
+            }
+
+            pdf.addImage(img, 'JPEG', x, y, w, h);
           }
-
-          pdf.addImage(
-            img,
-            'JPEG',
-            x,
-            y,
-            pdfWidth,
-            pdfHeight
-          );
 
           resolve();
         };
