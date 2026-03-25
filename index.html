@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image to PDF Converter Pro | No Quality Loss</title>
+  <title>Image to PDF Converter Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <meta name="description" content="Convert images to PDF without losing quality. Free online tool.">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -41,12 +39,15 @@
       border-radius: 5px;
     }
 
-    button {
+    select, button {
       width: 100%;
       padding: 12px;
       margin-top: 10px;
       border-radius: 10px;
       border: none;
+    }
+
+    button {
       background: #22c55e;
       font-weight: bold;
       cursor: pointer;
@@ -56,15 +57,21 @@
 
 <body>
 
-<h1>📄 Image to PDF Converter Pro</h1>
-<p>No compression • No quality loss • Original resolution</p>
+<h1>📄 Image to PDF Converter</h1>
+<p>No quality loss • No white space</p>
 
 <div class="box">
 
-  <div id="drop">📂 Drag & Drop Images Here</div>
+  <div id="drop">📂 Drag & Drop Images</div>
   <input type="file" id="upload" multiple style="display:none">
 
   <div id="preview"></div>
+
+  <!-- MODE SELECT -->
+  <select id="mode">
+    <option value="original">📷 Original Size (No white space)</option>
+    <option value="a4">📄 A4 Size</option>
+  </select>
 
   <button onclick="convertToPDF()">🔥 Convert to PDF</button>
 
@@ -112,6 +119,7 @@ async function convertToPDF() {
     return;
   }
 
+  const mode = document.getElementById("mode").value;
   const { jsPDF } = window.jspdf;
   let pdf;
 
@@ -125,23 +133,52 @@ async function convertToPDF() {
 
         img.onload = function() {
 
-          let pdfWidth = img.width;
-          let pdfHeight = img.height;
+          let pdfWidth, pdfHeight, x = 0, y = 0;
 
-          if (i === 0) {
-            pdf = new jsPDF({
-              unit: "px",
-              format: [pdfWidth, pdfHeight]
-            });
+          if (mode === "original") {
+            // NO WHITE SPACE
+            pdfWidth = img.width;
+            pdfHeight = img.height;
+
+            if (i === 0) {
+              pdf = new jsPDF({
+                unit: "px",
+                format: [pdfWidth, pdfHeight]
+              });
+            } else {
+              pdf.addPage([pdfWidth, pdfHeight]);
+            }
+
           } else {
-            pdf.addPage([pdfWidth, pdfHeight]);
+            // A4 MODE
+            pdfWidth = 595;
+            pdfHeight = 842;
+
+            if (i === 0) {
+              pdf = new jsPDF({
+                unit: "px",
+                format: "a4"
+              });
+            } else {
+              pdf.addPage();
+            }
+
+            let ratio = Math.min(pdfWidth / img.width, pdfHeight / img.height);
+            let newWidth = img.width * ratio;
+            let newHeight = img.height * ratio;
+
+            x = (pdfWidth - newWidth) / 2;
+            y = (pdfHeight - newHeight) / 2;
+
+            pdfWidth = newWidth;
+            pdfHeight = newHeight;
           }
 
           pdf.addImage(
             img,
             'JPEG',
-            0,
-            0,
+            x,
+            y,
             pdfWidth,
             pdfHeight
           );
@@ -153,7 +190,7 @@ async function convertToPDF() {
     });
   }
 
-  pdf.save("original-quality.pdf");
+  pdf.save("final.pdf");
 }
 </script>
 
