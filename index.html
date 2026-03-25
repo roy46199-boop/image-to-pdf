@@ -1,175 +1,42 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image to PDF Converter (Perfect No White Space)</title>
+  <title>PDF Tools Pro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <style>
-    body {
-      font-family: Arial;
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .box {
-      max-width: 450px;
-      margin: auto;
-      background: rgba(255,255,255,0.05);
-      padding: 20px;
-      border-radius: 15px;
-    }
-
-    #drop {
-      border: 2px dashed #38bdf8;
-      padding: 20px;
-      cursor: pointer;
-      border-radius: 10px;
-    }
-
-    #preview img {
-      width: 70px;
-      margin: 5px;
-    }
-
-    select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 10px;
-      border: none;
-    }
-
-    button {
-      background: #22c55e;
-      font-weight: bold;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h2>📄 Image to PDF Converter</h2>
+<header>
+  <h1>📄 PDF Tools Pro</h1>
+  <p>All-in-one PDF solution</p>
+</header>
 
-<div class="box">
+<div class="container">
 
-  <div id="drop">📂 Upload / Drag Images</div>
-  <input type="file" id="upload" multiple style="display:none">
+  <a href="image-to-pdf.html" class="card">
+    <h3>📷 Image to PDF</h3>
+    <p>Convert images to PDF</p>
+  </a>
 
-  <div id="preview"></div>
+  <a href="merge-pdf.html" class="card">
+    <h3>📎 Merge PDF</h3>
+    <p>Combine multiple PDFs</p>
+  </a>
 
-  <select id="mode">
-    <option value="original">Original (No Space)</option>
-    <option value="fill">A4 No White Space 🔥</option>
-  </select>
+  <a href="#" class="card">
+    <h3>✂️ Split PDF</h3>
+    <p>Coming soon</p>
+  </a>
 
-  <button onclick="convert()">Convert PDF</button>
+  <a href="#" class="card">
+    <h3>📉 Compress PDF</h3>
+    <p>Coming soon</p>
+  </a>
 
 </div>
-
-<script>
-let files = [];
-
-const drop = document.getElementById("drop");
-const input = document.getElementById("upload");
-const preview = document.getElementById("preview");
-
-drop.onclick = () => input.click();
-input.onchange = e => handleFiles(e.target.files);
-
-drop.ondragover = e => e.preventDefault();
-drop.ondrop = e => {
-  e.preventDefault();
-  handleFiles(e.dataTransfer.files);
-};
-
-function handleFiles(f) {
-  files = [...f];
-  preview.innerHTML = "";
-
-  files.forEach(file => {
-    let r = new FileReader();
-    r.onload = e => {
-      let img = document.createElement("img");
-      img.src = e.target.result;
-      preview.appendChild(img);
-    };
-    r.readAsDataURL(file);
-  });
-}
-
-async function convert() {
-  if (files.length === 0) return alert("Upload images");
-
-  const { jsPDF } = window.jspdf;
-  let pdf;
-  let mode = document.getElementById("mode").value;
-
-  for (let i = 0; i < files.length; i++) {
-
-    let reader = new FileReader();
-
-    await new Promise(resolve => {
-      reader.onload = e => {
-        let img = new Image();
-        img.src = e.target.result;
-
-        img.onload = () => {
-
-          if (mode === "original") {
-            let w = img.width;
-            let h = img.height;
-
-            if (i === 0)
-              pdf = new jsPDF({ unit: "px", format: [w, h] });
-            else
-              pdf.addPage([w, h]);
-
-            pdf.addImage(img, 'JPEG', 0, 0, w, h);
-          }
-
-          else {
-            const pageW = 595;
-            const pageH = 842;
-
-            if (i === 0)
-              pdf = new jsPDF({ unit: "px", format: "a4" });
-            else
-              pdf.addPage();
-
-            let imgRatio = img.width / img.height;
-            let pageRatio = pageW / pageH;
-
-            let w, h;
-
-            if (imgRatio > pageRatio) {
-              h = pageH + 2;  // 👈 bleed fix
-              w = h * imgRatio;
-            } else {
-              w = pageW + 2;  // 👈 bleed fix
-              h = w / imgRatio;
-            }
-
-            let x = (pageW - w) / 2;
-            let y = (pageH - h) / 2;
-
-            pdf.addImage(img, 'JPEG', x, y, w, h);
-          }
-
-          resolve();
-        };
-      };
-
-      reader.readAsDataURL(files[i]);
-    });
-  }
-
-  pdf.save("no-white-space.pdf");
-}
-</script>
 
 </body>
 </html>
