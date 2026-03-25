@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image to PDF Converter | Free Online Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <meta name="description" content="Convert images to PDF online for free. Fast and easy image to PDF converter.">
+  <meta name="keywords" content="image to pdf, jpg to pdf, convert image to pdf">
+
+  <!-- PDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: linear-gradient(135deg,#0f172a,#020617);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 { color: #38bdf8; }
+
+    .box {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+      border: none;
+    }
+
+    button {
+      background: #22c55e;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📄 Image to PDF Converter</h1>
+<p>Convert images into PDF instantly (Free)</p>
+
+<div class="box">
+
+  <input type="file" id="upload" multiple>
+
+  <button onclick="convertToPDF()">Convert to PDF</button>
+
+</div>
+
+<script>
+async function convertToPDF() {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  const files = document.getElementById("upload").files;
+
+  if (files.length === 0) {
+    alert("Please upload images");
+    return;
+  }
+
+  for (let i = 0; i < files.length; i++) {
+    let file = files[i];
+
+    let reader = new FileReader();
+    await new Promise(resolve => {
+      reader.onload = function(e) {
+        let img = new Image();
+        img.src = e.target.result;
+
+        img.onload = function() {
+          if (i > 0) pdf.addPage();
+
+          pdf.addImage(img, 'JPEG', 10, 10, 180, 160);
+          resolve();
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  pdf.save("converted.pdf");
+}
+</script>
+
+</body>
+</html>
