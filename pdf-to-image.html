@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PDF to Image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+
+<body style="text-align:center; background:#0f172a; color:white;">
+
+<h2>🖼 PDF to Image</h2>
+
+<input type="file" id="pdfUpload">
+<div id="output"></div>
+
+<script>
+document.getElementById("pdfUpload").addEventListener("change", function(e) {
+  let file = e.target.files[0];
+  let reader = new FileReader();
+
+  reader.onload = function() {
+    let typedarray = new Uint8Array(this.result);
+
+    pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+      for (let i = 1; i <= pdf.numPages; i++) {
+        pdf.getPage(i).then(page => {
+          let canvas = document.createElement("canvas");
+          let ctx = canvas.getContext("2d");
+
+          let viewport = page.getViewport({ scale: 1.5 });
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          page.render({ canvasContext: ctx, viewport: viewport });
+
+          document.getElementById("output").appendChild(canvas);
+        });
+      }
+    });
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+</script>
+
+</body>
+</html>
