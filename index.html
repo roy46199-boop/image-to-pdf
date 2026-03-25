@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image to PDF Converter Pro | Free Online Tool</title>
+  <title>Image to PDF Converter Pro | High Quality</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="description" content="Convert images to PDF online for free. Fast, secure, and easy PDF converter.">
+  <meta name="description" content="Convert images to high quality PDF online for free. No compression, no quality loss.">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -30,12 +30,12 @@
     #drop {
       border: 2px dashed #38bdf8;
       padding: 20px;
-      margin-bottom: 10px;
       border-radius: 10px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
-    img {
+    #preview img {
       width: 80px;
       margin: 5px;
       border-radius: 5px;
@@ -57,7 +57,7 @@
 <body>
 
 <h1>📄 Image to PDF Converter Pro</h1>
-<p>Drag & drop images and convert instantly</p>
+<p>High quality PDF without losing image clarity</p>
 
 <div class="box">
 
@@ -113,7 +113,10 @@ async function convertToPDF() {
   }
 
   const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
+  const pdf = new jsPDF({
+    unit: "px",
+    format: "a4"
+  });
 
   for (let i = 0; i < files.length; i++) {
     let reader = new FileReader();
@@ -124,9 +127,28 @@ async function convertToPDF() {
         img.src = e.target.result;
 
         img.onload = function() {
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          let imgWidth = img.width;
+          let imgHeight = img.height;
+
+          // Maintain aspect ratio
+          let ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+          imgWidth *= ratio;
+          imgHeight *= ratio;
+
           if (i > 0) pdf.addPage();
 
-          pdf.addImage(img, 'JPEG', 10, 10, 180, 260);
+          pdf.addImage(
+            img,
+            'PNG',  // high quality
+            (pageWidth - imgWidth) / 2,
+            (pageHeight - imgHeight) / 2,
+            imgWidth,
+            imgHeight
+          );
+
           resolve();
         };
       };
@@ -134,7 +156,7 @@ async function convertToPDF() {
     });
   }
 
-  pdf.save("converted.pdf");
+  pdf.save("high-quality.pdf");
 }
 </script>
 
