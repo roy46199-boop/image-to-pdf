@@ -1,0 +1,30 @@
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#0f172a,#020617);
+  color: white;
+  text-align: center;
+}
+
+header {
+  padding: 20px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+  gap: 15px;
+  padding: 20px;
+}
+
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  transition: 0.3s;
+}
+
+.card:hover {
+  background: #1e293b;
+}
